@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rotación de Potreros — Ovis 21</title>
+<meta name="description" content="Visualizador local para rotación de potreros con carga de KML y planillas de rotación.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div class="hbrand">
+      <div class="hlogo">🐑</div>
+      <div><div class="htitle">Rotación de Potreros</div><div class="hsub">Ovis 21 · Plan Cerrado</div></div>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- SIDEBAR IZQUIERDA -->
+    <div class="sl">
+      <div class="sl-in">
+
+        <div class="sec">
+          <div class="st">📂 Archivos</div>
+          <div>
+            <div class="upl"><input type="file" accept=".kml" onchange="loadKML(this)"><div class="upl-i">🗺️</div><div><div class="upl-l">Mapa KML del campo</div><div class="upl-s">Clic para subir</div></div></div>
+            <div class="sbar idle" id="skml"><div class="sdot idle"></div><span>Esperando KML...</span></div>
+          </div>
+          <div style="margin-top:8px">
+            <div class="upl"><input type="file" accept=".xlsx,.xls,.ods,.csv" onchange="loadExcel(this)"><div class="upl-i">📊</div><div><div class="upl-l">Planilla de rotación</div><div class="upl-s">Excel, ODS o CSV</div></div></div>
+            <div class="sbar idle" id="sxl"><div class="sdot idle"></div><span>Esperando planilla...</span></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="st">📅 Fecha puntual</div>
+          <div class="frow">
+            <input type="date" id="datePick" onchange="onDateChange()">
+            <button class="btn" onclick="setHoy()">Hoy</button>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="st">▶ Simular recorrido</div>
+          <button class="abtn" id="abtn" onclick="toggleAnim()" disabled>
+            <span id="aico">▶</span><span id="albl">Simular rotación</span>
+          </button>
+          <div class="spblk">
+            <div class="sprow"><span>Velocidad</span><span class="spv" id="spv">5×</span></div>
+            <input type="range" id="spsl" min="1" max="15" value="5" oninput="setSp(this.value)">
+          </div>
+          <div class="tlblk" id="tlblk" style="display:none">
+            <div class="tltr"><div class="tlfill" id="tlfi"></div></div>
+            <div class="tldates"><span id="tls">—</span><span id="tle">—</span></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="st">🎨 Leyenda</div>
+          <div class="leg">
+            <div class="li"><div class="ld" style="background:#c0392b"></div>Ocupado — vacas presentes</div>
+            <div class="li"><div class="ld" style="background:#3a7a33"></div>En descanso</div>
+            <div class="li"><div class="ld" style="background:#d46b18"></div>Próximo a entrar</div>
+            <div class="li"><div class="ld" style="background:#3a5030"></div>Sin datos</div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="st">🐄 Rodeos</div>
+          <div class="rlist" id="rlist"><div style="font-size:11px;color:var(--gr2)">Cargá la planilla</div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MAPA -->
+    <div class="mapa" id="mapa">
+      <canvas id="cv"></canvas>
+
+      <div class="empty" id="empty">
+        <div class="ei">🗺️</div>
+        <div class="eh">Cargá el KML del campo</div>
+        <div class="ep">Subí el KML con el loteo y el Excel de rotación</div>
+      </div>
+
+      <div class="fbadge" id="fbadge" style="display:none">
+        <div class="fb-l">Consultando</div>
+        <div class="fb-f" id="fbf">—</div>
+        <div class="fb-d" id="fbd">—</div>
+      </div>
+
+      <div class="asts" id="asts">
+        <div class="as-l" id="asl">Simulando</div>
+        <div class="as-tr"><div class="as-fi" id="asfi"></div></div>
+      </div>
+
+      <div class="bsts" id="bsts" style="display:none">
+        <div class="bs"><div class="bsd" style="background:#c0392b"></div>Ocupados:<span class="bsn" id="noc">0</span></div>
+        <div class="bs"><div class="bsd" style="background:#3a7a33"></div>Descansando:<span class="bsn" id="ndes">0</span></div>
+        <div class="bs"><div class="bsd" style="background:#d46b18"></div>Próximo:<span class="bsn" id="npro">0</span></div>
+        <div class="bs" style="margin-left:auto"><div class="bsd" style="background:var(--g4)"></div>Total:<span class="bsn" id="ntot">0</span></div>
+      </div>
+
+      <div class="tip" id="tip"></div>
+    </div>
+
+    <!-- PANEL DERECHO - Planilla del Pastor -->
+    <div class="pr" id="pranel">
+      <div class="pr-hdr">
+        <div class="pr-title">Planilla del Pastor</div>
+        <div class="pr-sub">Cargá la planilla para ver</div>
+      </div>
+      <div class="pr-body" id="prbody">
+        <div style="padding:20px;font-size:11.5px;color:rgba(255,255,255,.25);text-align:center;margin-top:30px">
+          Los movimientos aparecerán aquí una vez que cargues el Excel
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
