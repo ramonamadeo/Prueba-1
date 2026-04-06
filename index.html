@@ -34,6 +34,21 @@
         </div>
 
         <div class="sec">
+          <div class="st">☁️ Supabase</div>
+          <div class="sup-card">
+            <div class="sup-top">
+              <div>
+                <div class="sup-name">Proyecto conectado</div>
+                <div class="sup-meta" id="supmeta">Sin configurar</div>
+              </div>
+              <button class="btn btn-ghost" onclick="retrySupabaseConnection()">Probar</button>
+            </div>
+            <div class="sbar idle" id="ssupabase"><div class="sdot idle"></div><span>Verificando configuración...</span></div>
+            <div class="sup-help" id="suphelp">La app va a quedar lista para usar Auth, Storage y tablas cuando armes la base.</div>
+          </div>
+        </div>
+
+        <div class="sec">
           <div class="st">📅 Fecha puntual</div>
           <div class="frow">
             <input type="date" id="datePick" onchange="onDateChange()">
@@ -76,7 +91,7 @@
 
     <!-- MAPA -->
     <div class="mapa" id="mapa">
-      <canvas id="cv"></canvas>
+      <div id="mapview" class="mapview"></div>
 
       <div class="empty" id="empty">
         <div class="ei">🗺️</div>

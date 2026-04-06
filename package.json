@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
+    "leaflet": "^1.9.4",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
